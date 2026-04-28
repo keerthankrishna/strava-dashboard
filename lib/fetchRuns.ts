@@ -16,11 +16,22 @@ async function getAccessToken(): Promise<string> {
 }
 
 async function fetchActivities(token: string) {
-  const res = await fetch(
-    'https://www.strava.com/api/v3/athlete/activities?per_page=200',
-    { headers: { Authorization: `Bearer ${token}` } }
-  )
-  return res.json()
+  const all: Record<string, unknown>[] = []
+  let page = 1
+
+  while (true) {
+    const res = await fetch(
+      `https://www.strava.com/api/v3/athlete/activities?per_page=200&page=${page}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    const batch: Record<string, unknown>[] = await res.json()
+    if (!batch.length) break
+    all.push(...batch)
+    if (batch.length < 200) break
+    page++
+  }
+
+  return all
 }
 
 function mapActivity(a: Record<string, unknown>): Run {
