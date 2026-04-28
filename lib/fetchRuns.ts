@@ -46,11 +46,14 @@ function mapActivity(a: Record<string, unknown>): Run {
     Treadmill:  'indoor',
   }
 
+  const baseType = typeMap[a.sport_type as string] ?? 'outdoor'
+  const type: Run['type'] = (baseType === 'outdoor' && a.trainer) ? 'indoor' : baseType
+
   return {
     id:             String(a.id),
     name:           a.name as string,
     date:           a.start_date as string,
-    type:           typeMap[a.sport_type as string] ?? 'outdoor',
+    type,
     distanceKm,
     durationSeconds,
     pacePerKm,
